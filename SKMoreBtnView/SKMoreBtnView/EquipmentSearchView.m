@@ -16,6 +16,11 @@
 #define MAS_SHORTHAND_GLOBALS
 
 #import "Masonry.h"
+
+@interface EquipmentSearchView()
+
+@property(nonatomic,strong)UIView *btnBgView;
+@end
 @implementation EquipmentSearchView
 
 
@@ -58,6 +63,7 @@
 	UIButton *deleteBtn = [UIButton buttonWithType:UIButtonTypeCustom];
 	[deleteBtn setTitle:@"清空历史记录" forState:UIControlStateNormal];
 	[deleteBtn setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+	[deleteBtn addTarget:self action:@selector(clearAllHistory) forControlEvents:UIControlEventTouchUpInside];
 	deleteBtn.titleLabel.font = [UIFont systemFontOfSize:17.0f];
 	[self addSubview:deleteBtn];
 	[deleteBtn mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -95,21 +101,32 @@
 
 	}];
 	
-
-
-
-	[self createBtnWithTitleArr:@[@"上海儿童剧院",@"徐汇汉庭",@"上海香格里拉酒店",@"上海嘉定北边",@"上海外滩东方明珠电视塔",@"第二条人生信条",@"牛逼的人生"] withView:sepView];
 	
+	_btnBgView = [[UIView alloc]init];
+	_btnBgView.backgroundColor = [UIColor whiteColor];
+	[self addSubview:_btnBgView];
 	
+	[_btnBgView mas_makeConstraints:^(MASConstraintMaker *make) {
+		make.bottom.equalTo(self.mas_bottom).offset(-10);
+		make.left.equalTo(self.mas_left).offset(0);
+		make.right.equalTo(self.mas_right).offset(0);
+		make.top.equalTo(sepView.mas_bottom).offset(1);
+
+	}];
 	
 
+
+	[self createBtnWithTitleArr:@[@"上海儿童剧院",@"徐汇汉庭",@"上海香格里拉酒店",@"上海嘉定北边",@"上海外滩东方明珠电视塔",@"第二条人生信条",@"牛逼的人生",@"上海外滩电视塔",@"刘行行行刘行"] withView:sepView];
+	
 }
 
 /** 创建按钮 */
 
 - (void)createBtnWithTitleArr:(NSArray *)titleArr withView:(UIView *)sepView
 {
-
+	
+	
+	
 	CGFloat btn_left_padding = 15;
 	
 	CGFloat total_left_padding = btn_left_padding;
@@ -129,12 +146,13 @@
 	UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
 	[btn  setTitle:titleArr[i] forState:UIControlStateNormal];
 	[btn setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+	[btn addTarget:self action:@selector(btnClick:) forControlEvents:UIControlEventTouchUpInside];
 	btn.titleLabel.font = [UIFont systemFontOfSize:15.0f];
 	btn.layer.cornerRadius = 3;
 	btn.layer.borderWidth = 0.7;
 	[btn setBackgroundColor: [UIColor colorWithRed:245/255.0f green:245/255.0f blue:245/255.0f alpha:1]];
 	btn.layer.borderColor = [UIColor colorWithRed:230/255.0f green:230/255.0f blue:230/255.0f alpha:1].CGColor;
-	[self addSubview:btn];
+	[_btnBgView addSubview:btn];
 	
 
 	CGFloat btn_title_w = [titleArr[i] boundingRectWithSize:CGSizeMake(kScreenW - btn_left_padding * 2, 30) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:17.0f]} context:nil].size.width;
@@ -147,12 +165,12 @@
 		
 		// 真正left_padding
 		CGFloat true_left_padding = total_left_padding - btn_title_w;
-		total_btn_w = btn_title_w + total_btn_w + i * btn_left_padding;
+		total_btn_w = btn_title_w + total_btn_w +(i - col_flag) * btn_left_padding;
 		NSLog(@"total_btn_w--%d",[[NSString stringWithFormat:@"%f",total_btn_w / kScreenW] intValue]);
 		
 		row_index = [[NSString stringWithFormat:@"%f",total_btn_w / kScreenW] intValue];
 		
-		
+		NSLog(@"alex--%f--%f--%d",kScreenW,total_btn_w,row_index);
 		
 		
 		// 判断left的值
@@ -180,6 +198,28 @@
 		
 	}
 	
+}
+
+
+#pragma mark - 按钮的点击事件
+- (void)btnClick:(UIButton *)btn
+{
+	
+	UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"按钮" message:btn.titleLabel.text delegate:self cancelButtonTitle:@"好的" otherButtonTitles:nil];
+	[alert show];
+	
+	// 将用户点击传入主界面
+	[self.delegate clickBtnWithTitle:btn.titleLabel.text];
+
+}
+
+
+#pragma mark - 清空历史记录
+- (void)clearAllHistory
+{
+	for (UIView *view in _btnBgView.subviews) {
+		[view removeFromSuperview];
+	}
 
 }
 
